@@ -2,6 +2,7 @@ import os
 from PIL import Image, ImageDraw, ImageFont
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
+from data import *
 
 
 def change_black_to_gray(image):
@@ -17,6 +18,15 @@ def change_black_to_gray(image):
     return image
 
 
+def calculate_dynamic_font_size(text, base_size, max_size, max_characters):
+    length = max(len(text), 1)
+    factor = min(max_characters / length, 1.5)  # Linear scaling factor
+    font_size = int(base_size * (factor ** 0.7))  # Slight exponential scaling
+    return max(min(font_size, max_size), base_size // 2)
+
+
+
+
 def create_plaque(city, country, city_image_path, output_path):
     width, height = int(6.5 * 118.11), int(2.5 * 118.11)
 
@@ -29,38 +39,30 @@ def create_plaque(city, country, city_image_path, output_path):
                    outline=outline_color, width=outline_thickness)
 
     padding = 10
-
     content_width = width - 2 * (outline_thickness + padding)
     content_height = height - 2 * (outline_thickness + padding)
 
     city_image = Image.open(city_image_path).convert("RGBA")
     city_image.thumbnail((content_height, content_height))
-
     plaque.paste(city_image, (outline_thickness + padding, (height - city_image.height) // 2), city_image)
 
     font_path = "OpenSans-Regular.ttf"
+    base_font_size = 44
+    max_font_size = 60
+    max_characters = 20
+
     try:
-        font = ImageFont.truetype(font_path, 20)
+        font = ImageFont.truetype(font_path, base_font_size)
     except IOError:
         raise FileNotFoundError("Font file not found. Please provide a valid .ttf font file.")
-
-    def calculate_font_size(text, max_width, max_height, font_path):
-        font_size = 1
-        test_font = ImageFont.truetype(font_path, font_size)
-        while True:
-            test_width, test_height = draw.textbbox((0, 0), text, font=test_font)[2:4]
-            if test_width > max_width or test_height > max_height:
-                break
-            font_size += 1
-            test_font = ImageFont.truetype(font_path, font_size)
-        return font_size - 1
 
     text_x = city_image.width + padding * 2
     text_width = content_width - text_x
     text_height = content_height // 2
 
-    city_font_size = calculate_font_size(city, text_width, text_height // 2, font_path)
-    country_font_size = calculate_font_size(country, text_width, text_height // 2, font_path)
+    # Dynamic font size calculations
+    city_font_size = calculate_dynamic_font_size(city, base_font_size, max_font_size, max_characters)
+    country_font_size = calculate_dynamic_font_size(country, base_font_size, max_font_size, max_characters)
 
     city_font = ImageFont.truetype(font_path, city_font_size)
     country_font = ImageFont.truetype(font_path, country_font_size)
@@ -89,8 +91,7 @@ def generate_pdf(city_country_list, city_image_paths, output_pdf="output_pdf/pla
     os.makedirs(os.path.dirname(output_pdf), exist_ok=True)
 
     a4_width, a4_height = A4
-
-    plaque_width, plaque_height = 6.5 * 28.3465, 2.5 * 28.3465  # wymiary 6.5cm x 2.5cm
+    plaque_width, plaque_height = 6.5 * 28.3465, 2.5 * 28.3465  # Dimensions: 6.5cm x 2.5cm
 
     margin = 10
     x_spacing, y_spacing = 5, 5
@@ -102,7 +103,6 @@ def generate_pdf(city_country_list, city_image_paths, output_pdf="output_pdf/pla
     x, y = margin, a4_height - margin - plaque_height
 
     for city, country in city_country_list:
-
         city_image_path = os.path.join("input_photos", city_image_paths.get(city, ""))
         if not os.path.isfile(city_image_path):
             raise ValueError(f"No image file found for city: {city} at {city_image_path}")
@@ -128,111 +128,6 @@ def generate_pdf(city_country_list, city_image_paths, output_pdf="output_pdf/pla
     print(f"PDF saved to {output_pdf}")
 
 
-city_country_data = [
-    ("Split", "Croatia"),
-    ("Củ Chi", "Vietnam"),
-    ("Kuala Lumpur", "Malaysia"),
-    ("Budapest", "Hungary"),
-    ("San Francisco", "California (USA)"),
-    ("Marsa Alam", "Egypt"),
-    ("Siem Reap", "Cambodia"),
-    ("Milano", "Italy"),
-    ("Dubai", "United Arab Emirates"),
-    ("Dahab", "Egypt"),
-    ("Singapore", "Singapore"),
-    ("Kimana", "Kenya"),
-    ("Nusa Penida", "Indonesia"),
-    ("Havana", "Cuba"),
-    ("Lyon", "France"),
-    ("Montpellier", "France"),
-    ("Jakarta", "Indonesia"),
-    ("Ho Chi Minh", "Vietnam"),
-    ("Bratislava", "Slovakia"),
-    ("Bali", "Indonesia"),
-    ("Fuerteventura", "Canary Islands (Spain)"),
-    ("Doha", "Qatar"),
-    ("Las Vegas", "Nevada (USA)"),
-    ("Alberobello", "Italy"),
-    ("Rhodes", "Greece"),
-    ("Cayo Santa María", "Cuba"),
-    ("Berlin", "Germany"),
-    ("Seligman", "Arizona (USA)"),
-    ("Barcelona", "Spain"),
-    ("Tatranská Lomnica", "Slovakia"),
-    ("Cinque Terre", "Italy"),
-    ("Sal", "Cabo Verde"),
-    ("Batu Caves", "Malaysia"),
-    ("Rijeka", "Croatia"),
-    ("Vienna", "Austria"),
-    ("Antalya", "Turkey"),
-    ("London", "United Kingdom"),
-    ("Los Angeles", "California (USA)"),
-    ("Zittau", "Germany"),
-    ("Genova", "Italy"),
-    ("Sharm El Sheikh", "Egypt"),
-    ("Cairo", "Egypt"),
-    ("Plitvička Jezera", "Croatia"),
-    ("Lago di Garda", "Italy"),
-    ("Međugorje", "Bosnia and Herzegovina"),
-    ("Jesolo", "Italy"),
-    ("Grand Canyon", "Arizona (USA)"),
-    ("Crete", "Greece"),
-    ("Hollywood", "California (USA)"),
-    ("Špindlerův Mlýn", "Czech Republic")
-]
 
 
-city_image_paths = {
-    "Split": "split.png",
-    "Củ Chi": "cu_chi.png",
-    "Kuala Lumpur": "kuala_lumpur.png",
-    "Budapest": "budapest.png",
-    "San Francisco": "san_francisco.png",
-    "Marsa Alam": "marsa_alam.png",
-    "Siem Reap": "siem_reap.png",
-    "Milano": "milano.png",
-    "Dubai": "dubai.png",
-    "Dahab": "dahab.png",
-    "Singapore": "singapore.png",
-    "Kimana": "kimana.png",
-    "Nusa Penida": "nusa_penida.png",
-    "Havana": "havana.png",
-    "Lyon": "lyon.png",
-    "Montpellier": "montpellier.png",
-    "Jakarta": "jakarta.png",
-    "Ho Chi Minh": "ho_chi_minh.png",
-    "Bratislava": "bratislava.png",
-    "Bali": "bali.png",
-    "Fuerteventura": "fuerteventura.png",
-    "Doha": "doha.png",
-    "Las Vegas": "las_vegas.png",
-    "Alberobello": "alberobello.png",
-    "Rhodes": "rhodes.png",
-    "Cayo Santa María": "cayo_santa_maria.png",
-    "Berlin": "berlin.png",
-    "Seligman": "seligman.png",
-    "Barcelona": "barcelona.png",
-    "Tatranská Lomnica": "tatranska_lomnica.png",
-    "Cinque Terre": "cinque_terre.png",
-    "Sal": "sal.png",
-    "Batu Caves": "batu_caves.png",
-    "Rijeka": "rijeka.png",
-    "Vienna": "vienna.png",
-    "Antalya": "antalya.png",
-    "London": "london.png",
-    "Los Angeles": "los_angeles.png",
-    "Zittau": "zittau.png",
-    "Genova": "genova.png",
-    "Sharm El Sheikh": "sharm_el_sheikh.png",
-    "Cairo": "cairo.png",
-    "Plitvička Jezera": "plitvicka_jezera.png",
-    "Lago di Garda": "lago_di_garda.png",
-    "Međugorje": "medjugorje.png",
-    "Jesolo": "jesolo.png",
-    "Grand Canyon": "grand_canyon.png",
-    "Crete": "crete.png",
-    "Hollywood": "hollywood.png",
-    "Špindlerův Mlýn": "spindleruv_mlyn.png"
-}
-
-generate_pdf(city_country_data, city_image_paths)
+generate_pdf(city_country_data_2, city_image_paths_2)
