@@ -136,6 +136,18 @@ city_country_data_2 = {
     ("Isla Nublar", "Costa Rica"),
     ("Gdańsk", "Poland"),
     ("Wrocław", "Poland"),
+    ("Bui Vien", "Vietnam"),
+    ("Munich", "Germany"),
+    ("Frankfurt am Main", "Germany"),
+    ("Muscat", "Oman"),
+    ("Bangkok", "Thailand"),
+    ("Pattaya", "Thailand"),
+    ("Ayutthaya", "Thailand"),
+    ("Na Kluea", "Thailand"),
+    ("Preăh Sihanŭk", "Cambodia"),
+    ("Kâmpôt", "Cambodia"),
+    ("Koh Rong", "Cambodia"),
+    ("Phnom Penh", "Cambodia"),
 }
 
 
@@ -149,5 +161,37 @@ city_image_paths_2 = {"Warsaw": "warsaw.png",
                       "Cracow": "cracow.png",
                       "Isla Nublar": "isla_nublar.png",
                       "Gdańsk": "gdansk.png",
-                      "Wrocław": "wroclaw.png"
+                      "Wrocław": "wroclaw.png",
+                      "Bui Vien": "bui_vien.png",
+                      "Munich": "munich.png",
+                      "Frankfurt am Main": "frankfurt.png",
+                      "Muscat": "muscat.png",
+                      "Bangkok": "bangkok.png",
+                      "Pattaya": "pattaya.png",
+                      "Ayutthaya": "ayutthaya.png",
+                      "Preăh Sihanŭk": "sihanoukville.png",
+                      "Kâmpôt": "kampot.png",
+                      "Koh Rong": "koh_rong.png",
+                      "Phnom Penh": "phnom_penh.png",
+
                       }
+
+city_country_data_3 = {
+    ("Na Kluea", "Thailand"),
+    ("Catania", "Italy"),
+    ("Łódź", "Poland"),
+    ("Poznań", "Poland"),
+    ("Sobótka", "Poland"),
+
+
+}
+
+city_image_paths_3 = {
+    "Na Kluea": "na_kluea.png",
+    "Catania": "catania.png",
+    "Łódź": "lodz.png",
+    "Poznań": "poznan.png",
+    "Sobótka": "sobotka.png",
+
+
+}
