@@ -130,4 +130,4 @@ def generate_pdf(city_country_list, city_image_paths, output_pdf="output_pdf/pla
 
 
 
-generate_pdf(city_country_data_2, city_image_paths_2)
+generate_pdf(city_country_data_3, city_image_paths_3)
